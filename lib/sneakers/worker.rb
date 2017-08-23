@@ -33,7 +33,10 @@ module Sneakers
     end
 
     def ack!; :ack end
-    def reject!; :reject; end
+    def reject!(error)
+      @error = error 
+      :reject 
+    end
     def requeue!; :requeue; end
 
     def publish(msg, opts)
@@ -83,7 +86,7 @@ module Sneakers
           elsif res == :error
             handler.error(delivery_info, metadata, msg, error)
           elsif res == :reject
-            handler.reject(delivery_info, metadata, msg)
+            handler.reject(delivery_info, metadata, msg, @error)
           elsif res == :requeue
             handler.reject(delivery_info, metadata, msg, true)
           else
